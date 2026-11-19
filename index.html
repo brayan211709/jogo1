@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Arena de Jogos</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+<div class="container">
+
+  <!-- HOME -->
+  <div id="home">
+    <header>
+      <h1>🎮 Arena de Jogos</h1>
+      <p class="subtitle">Cadastre os jogadores e escolha um jogo</p>
+    </header>
+
+    <div class="card">
+      <h2>👥 Jogadores</h2>
+      <p class="info">Os nomes são salvos no arquivo <strong>jogadores.bd</strong></p>
+      <div class="reg-lista" id="reg-lista">
+        <span class="reg-vazio" id="reg-vazio">Nenhum jogador cadastrado ainda</span>
+      </div>
+      <div class="reg-add">
+        <input type="text" id="reg-input" placeholder="Nome do jogador" maxlength="20" autocomplete="off"
+               onkeypress="if(event.key==='Enter') regAdd()">
+        <button class="btn btn-p" onclick="regAdd()">Adicionar</button>
+      </div>
+    </div>
+
+    <div class="games">
+      <div class="gcard" onclick="goImpostor()">
+        <div class="gicon">🕵️</div>
+        <h2>Impostor</h2>
+        <p>Com dica ou sem dica. Descubra quem é o impostor!</p>
+        <span class="badge">Multiplayer</span>
+      </div>
+      <div class="gcard" onclick="goVod()">
+        <div class="gicon">🎲</div>
+        <h2>Verdade ou Desafio</h2>
+        <p>6 níveis: Família, Leve, Médio, Pesado, +18 e Extremo</p>
+        <span class="badge">Grupo</span>
+      </div>
+      <div class="gcard" onclick="goHist()">
+        <div class="gicon">📖</div>
+        <h2>Adivinhe a História</h2>
+        <p>Histórias incompletas com reviravolta</p>
+        <span class="badge">Solo / Grupo</span>
+      </div>
+    </div>
+    <footer>Python + HTML + CSS + JavaScript + jogadores.bd</footer>
+  </div>
+
+  <!-- IMPOSTOR -->
+  <div id="impostor" class="hidden">
+    <span class="back" onclick="show('home')">← Voltar</span>
+    <header>
+      <h1>🕵️ Impostor</h1>
+      <p class="subtitle">Descubra quem não sabe a palavra</p>
+    </header>
+
+    <div id="imp-setup" class="card">
+      <h2>Quem vai jogar?</h2>
+      <p class="info">Selecione pelo menos 3 jogadores cadastrados.</p>
+      <div class="sel-jogadores" id="imp-sel"></div>
+      <p class="info" style="margin-top:12px" id="imp-sel-count">0 selecionados</p>
+      <button class="btn btn-p" onclick="impGoConfig()" style="margin-top:8px">Continuar</button>
+      <button class="btn btn-s" onclick="show('home')" style="margin-top:8px">← Cadastrar mais</button>
+    </div>
+
+    <div id="imp-config" class="card hidden">
+      <h2>Configurar Partida</h2>
+      <div class="fg">
+        <label>Tema:</label>
+        <select id="imp-tema"></select>
+      </div>
+      <div class="fg">
+        <label>Modo do Impostor:</label>
+        <div class="modos">
+          <button class="modo on" data-m="dica" onclick="impModoBtn(this)">Com dica<small>Palavra relacionada (ex: esquilo → nozes)</small></button>
+          <button class="modo" data-m="sem" onclick="impModoBtn(this)">Sem dica<small>Só sabe que é o impostor</small></button>
+        </div>
+      </div>
+      <div class="fg">
+        <label>Impostores: <span id="imp-ni-val">1</span></label>
+        <input type="range" id="imp-ni" min="1" max="3" value="1"
+               oninput="document.getElementById('imp-ni-val').textContent=this.value">
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-s" onclick="impBackSetup()">Voltar</button>
+        <button class="btn btn-p" onclick="impStart()">Começar</button>
+      </div>
+    </div>
+
+    <div id="imp-dist" class="card hidden">
+      <h2>Distribuição de Papéis</h2>
+      <p class="info">Passe o celular. Só a pessoa da vez olha a tela.</p>
+      <div id="imp-ja">
+        <p class="jnum" id="imp-nome-atual">Jogador</p>
+        <button class="btn btn-s" onclick="impReveal()">Revelar meu papel</button>
+      </div>
+      <div id="imp-pr" class="hidden">
+        <p id="imp-pt" class="papel"></p>
+        <button class="btn btn-p" onclick="impNext()">Pronto! Próximo</button>
+      </div>
+    </div>
+
+    <div id="imp-jogo" class="card hidden">
+      <h2>🔍 Discussão</h2>
+      <p>Descubram o(s) impostor(es)!</p>
+      <p class="dica">Façam perguntas sem entregar a palavra.</p>
+      <div class="ordem-jogadores" id="imp-ordem"></div>
+      <div class="bf">
+        <button class="btn btn-d" onclick="impShowWord()">Revelar palavra e impostores</button>
+        <button class="btn btn-s" onclick="impRestart()">Nova Partida</button>
+      </div>
+      <div id="imp-pw" class="pfinal hidden">
+        <p>A palavra era:</p>
+        <h2 id="imp-pwt"></h2>
+        <p style="margin-top:12px;color:var(--muted)">Impostor(es):</p>
+        <p id="imp-imps" style="font-weight:600;color:var(--danger);margin-top:4px"></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- VERDADE OU DESAFIO -->
+  <div id="vod" class="hidden">
+    <span class="back" onclick="show('home')">← Voltar</span>
+    <header>
+      <h1>🎲 Verdade ou Desafio</h1>
+      <p class="subtitle">Escolha a intensidade</p>
+    </header>
+
+    <div id="vod-setup" class="card">
+      <h2>Quem vai jogar?</h2>
+      <p class="info">Selecione pelo menos 2 jogadores.</p>
+      <div class="sel-jogadores" id="vod-sel"></div>
+      <p class="info" style="margin-top:12px" id="vod-sel-count">0 selecionados</p>
+      <button class="btn btn-p" onclick="vodStart()" style="margin-top:8px">Começar</button>
+      <button class="btn btn-s" onclick="show('home')" style="margin-top:8px">← Cadastrar mais</button>
+    </div>
+
+    <div id="vod-jogo" class="hidden">
+      <div class="card">
+        <div class="jogador-vez" id="vod-vez">Vez de: —</div>
+        <div class="ordem-jogadores" id="vod-ordem"></div>
+        <div class="fg">
+          <label>Intensidade:</label>
+          <div class="cats">
+            <button class="cat on" data-c="familia" onclick="vodCatBtn(this)">👨‍👩‍👧‍👦 Família</button>
+            <button class="cat" data-c="leve" onclick="vodCatBtn(this)">😌 Leve</button>
+            <button class="cat" data-c="medio" onclick="vodCatBtn(this)">😏 Médio</button>
+            <button class="cat" data-c="pesado" onclick="vodCatBtn(this)">🔥 Pesado</button>
+            <button class="cat" data-c="plus18" onclick="vodCatBtn(this)">🔞 +18</button>
+            <button class="cat" data-c="extremo" onclick="vodCatBtn(this)">💀 Extremo</button>
+          </div>
+        </div>
+        <div class="vodb">
+          <button class="btn btn-v" onclick="vodAsk('verdade')">💬 Verdade</button>
+          <button class="btn btn-c" onclick="vodAsk('desafio')">🎯 Desafio</button>
+        </div>
+        <div id="vod-res" class="res hidden">
+          <p class="tipo" id="vod-tipo"></p>
+          <p class="txt" id="vod-txt"></p>
+          <button class="btn btn-s" onclick="vodNext()">Próximo jogador</button>
+        </div>
+      </div>
+      <button class="btn btn-s" onclick="vodBackSetup()" style="margin-top:8px">← Trocar jogadores</button>
+    </div>
+  </div>
+
+  <!-- HISTÓRIA -->
+  <div id="hist" class="hidden">
+    <span class="back" onclick="show('home')">← Voltar</span>
+    <header>
+      <h1>📖 Adivinhe a História</h1>
+      <p class="subtitle">Descubra a reviravolta</p>
+    </header>
+
+    <div id="hist-setup" class="card">
+      <h2>Quem vai jogar?</h2>
+      <p class="info">Selecione os jogadores (mínimo 1).</p>
+      <div class="sel-jogadores" id="hist-sel"></div>
+      <p class="info" style="margin-top:12px" id="hist-sel-count">0 selecionados</p>
+      <button class="btn btn-p" onclick="histStart()" style="margin-top:8px">Começar</button>
+      <button class="btn btn-s" onclick="show('home')" style="margin-top:8px">← Cadastrar mais</button>
+    </div>
+
+    <div id="hist-jogo" class="hidden">
+      <div class="card">
+        <div class="jogador-vez" id="hist-vez"></div>
+        <p class="info">Leia e descubra o que realmente aconteceu.</p>
+        <div class="hist-story" id="hist-texto"></div>
+        <p class="hist-pergunta" id="hist-perg"></p>
+        <div class="pbox">
+          <input type="text" id="hist-pal" placeholder="Seu palpite..." autocomplete="off"
+                 onkeypress="if(event.key==='Enter') histCheck()">
+          <button class="btn btn-p" onclick="histCheck()">Responder</button>
+        </div>
+        <div class="bj">
+          <button class="btn btn-s" id="hist-dica-btn" onclick="histDica()">💡 Dica (3 restantes)</button>
+          <button class="btn btn-s" onclick="histReveal()">Ver resposta</button>
+          <button class="btn btn-p" onclick="histNew()">Próxima história</button>
+        </div>
+        <div id="hist-dica-box" class="card hidden" style="margin-top:12px;padding:12px;background:var(--bg)">
+          <p style="color:var(--muted);font-size:.8rem;margin-bottom:6px">Dicas usadas</p>
+          <p id="hist-dica-txt" style="white-space:pre-wrap;line-height:1.45"></p>
+        </div>
+      </div>
+      <div id="hist-res" class="card hidden">
+        <div id="hist-rc"></div>
+      </div>
+      <button class="btn btn-s" onclick="histBackSetup()" style="margin-top:8px">← Trocar jogadores</button>
+    </div>
+  </div>
+
+</div>
+<script src="/static/js/app.js"></script>
+</body>
+</html>
